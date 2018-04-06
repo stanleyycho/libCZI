@@ -65,17 +65,16 @@ public:	// interface libCZI::IStream
 };
 #endif
 
-/// <summary>	A simplistic stream implementation (based on in-memory copy). Note that this implementation is NOT thread-safe.</summary>
-class CSimpleStreamImplInMemory : public libCZI::IStream
+/// <summary>	A stream implementation (based on a memory-block). </summary>
+class CStreamImplInMemory : public libCZI::IStream
 {
 private:
 	std::shared_ptr<const void> rawData;
-	std::uint64_t dataBufferSize;
+	size_t dataBufferSize;
 public:
-	CSimpleStreamImplInMemory() = delete;
-	CSimpleStreamImplInMemory(std::shared_ptr<const void> ptr, std::uint64_t dataSize);
-	CSimpleStreamImplInMemory(std::shared_ptr<libCZI::IAttachment> attachement);
-	~CSimpleStreamImplInMemory();
+	CStreamImplInMemory() = delete;
+	CStreamImplInMemory(std::shared_ptr<const void> ptr, std::size_t dataSize);
+	CStreamImplInMemory(libCZI::IAttachment* attachement);
 public:	// interface libCZI::IStream
-	virtual void Read(std::uint64_t offset, void *pv, std::uint64_t size, std::uint64_t* ptrBytesRead);
+	virtual void Read(std::uint64_t offset, void* pv, std::uint64_t size, std::uint64_t* ptrBytesRead);
 };

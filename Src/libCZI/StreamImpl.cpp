@@ -26,7 +26,6 @@
 #include <sstream>
 #include <codecvt>
 #include <iomanip>
-#include <cstring>
 
 using namespace std;
 
@@ -162,45 +161,38 @@ void CSimpleStreamImplWindows::Read(std::uint64_t offset, void *pv, std::uint64_
 	}
 }
 #endif
+
 //----------------------------------------------------------------------------
-CSimpleStreamImplInMemory::CSimpleStreamImplInMemory(std::shared_ptr<const void> ptr, std::uint64_t dataSize) : rawData(ptr), dataBufferSize(dataSize)
+CStreamImplInMemory::CStreamImplInMemory(std::shared_ptr<const void> ptr, std::size_t dataSize)
+	: rawData(ptr), dataBufferSize(dataSize)
 {
 }
 
-CSimpleStreamImplInMemory::CSimpleStreamImplInMemory(std::shared_ptr<libCZI::IAttachment> attachement)
+CStreamImplInMemory::CStreamImplInMemory(libCZI::IAttachment* attachement)
 {
-	rawData = attachement->GetRawData(&dataBufferSize);
+	this->rawData = attachement->GetRawData(&this->dataBufferSize);
 }
 
-CSimpleStreamImplInMemory::~CSimpleStreamImplInMemory()
+/*virtual*/void CStreamImplInMemory::Read(std::uint64_t offset, void* pv, std::uint64_t size, std::uint64_t* ptrBytesRead)
 {
-}
-
-/*virtual*/void CSimpleStreamImplInMemory::Read(std::uint64_t offset, void *pv, std::uint64_t size, std::uint64_t* ptrBytesRead)
-{
-	if (pv == nullptr || ptrBytesRead == nullptr)
+	if (pv == nullptr)
 	{
-		throw std::runtime_error("Pointer cannot be null");
+		throw std::invalid_argument("Pointer cannot be null");
 	}
-	if (rawData)
+
+	if (offset >= this->dataBufferSize)
 	{
-		if (size > dataBufferSize)
-		{
-			std::stringstream ss;
-			ss << "Error reading from memory at offset " << offset << " -> requested size: " << size << " bytes, which exceeds actually data size " << dataBufferSize << " bytes.";
-			throw std::runtime_error(ss.str());
-		}
-		// Read only to the end of buffer size
-		if (dataBufferSize - offset < size)
-		{
-			size = dataBufferSize - offset;
-		}
-		void* offsetPtr = (void*)((char*)rawData.get() + offset);
-		std::memcpy(pv, offsetPtr, size);
-		*ptrBytesRead = size;
+		std::stringstream ss;
+		ss << "Error reading from memory at offset " << offset << " -> requested size: " << size << " bytes, which exceeds actual data size " << this->dataBufferSize << " bytes.";
+		throw std::runtime_error(ss.str());
 	}
-	else
+
+	// Read only to the end of buffer size
+	size_t sizeToCopy = (std::min)((size_t)size, (size_t)(this->dataBufferSize - offset));
+
+	std::memcpy(pv, static_cast<const char*>(rawData.get()) + offset, sizeToCopy);
+	if (ptrBytesRead != nullptr)
 	{
-		*ptrBytesRead = 0;
+		*ptrBytesRead = sizeToCopy;
 	}
 }

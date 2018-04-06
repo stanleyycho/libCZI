@@ -97,10 +97,10 @@ namespace libCZI
 	/// \return The newly created metadata object.
 	LIBCZI_API std::shared_ptr<ICziMetadata> CreateMetaFromMetadataSegment(IMetadataSegment* metadataSegment);
 
-	/// Creates an accesor of the specified type which uses the specified sub-block repository.
+	/// Creates an accessor of the specified type which uses the specified sub-block repository.
 	/// \param repository   The sub-block repository.
 	/// \param accessorType Type of the accessor.
-	/// \return The newly creted accesor object.
+	/// \return The newly created accessor object.
 	LIBCZI_API std::shared_ptr<IAccessor> CreateAccesor(std::shared_ptr<ISubBlockRepository> repository, AccessorType accessorType);
 
 	/// Creates a stream-object for the specified file.
@@ -109,14 +109,18 @@ namespace libCZI
 	/// \return The new stream object.
 	LIBCZI_API std::shared_ptr<IStream> CreateStreamFromFile(const wchar_t* szFilename);
 
-	/// Creates a stream-object for another stream in memory.
-	/// \param ptr	Pointer to another stream
+	/// Creates a stream-object on a memory-block.
+	/// \param ptr	Shared pointer to a memory-block.
+	/// \param dataSize Size of the memory-block.
 	/// \return			The new stream object.
-	LIBCZI_API std::shared_ptr<IStream> CreateStreamFromMemory(std::shared_ptr<const void> ptr, std::uint64_t dataSize);
-	/// Creates a stream-object from IAttachment
-	/// \param attachement	Pointer to attachement
+	LIBCZI_API std::shared_ptr<IStream> CreateStreamFromMemory(std::shared_ptr<const void> ptr, size_t dataSize);
+
+	/// Creates a stream-object on the memory-block in an attachment.
+	/// \param attachment	Pointer to attachment.
 	/// \return			The new stream object.
-	LIBCZI_API std::shared_ptr<IStream> CreateStreamFromMemory(std::shared_ptr<IAttachment> attachement);
+	LIBCZI_API std::shared_ptr<IStream> CreateStreamFromMemory(IAttachment* attachment);
+
+
 
 	/// Interface used for accessing the data-stream.
 	///
